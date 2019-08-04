@@ -45,7 +45,7 @@ func scrapeMetadata(from fetch: AnyPublisher<String, Error>, using urlSession: U
 						using: urlSession
 					),
 					using: urlSession
-				).asResult
+				).asResultForUI
 			}
 		)
 	}
@@ -69,7 +69,7 @@ func scrapeContent(for index: Content.Index, from fetch: AnyPublisher<String, Er
 				index: index,
 				title: removingHTML(title),
 				imageSrc: imageSrc.absoluteString,
-				image: fetchImage(from: imageSrc, using: urlSession).asResult,
+				image: fetchImage(from: imageSrc, using: urlSession).asResultForUI,
 				altText: removingHTML(altText)
 			)
 		}

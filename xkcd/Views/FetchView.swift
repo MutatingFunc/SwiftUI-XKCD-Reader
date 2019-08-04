@@ -16,6 +16,7 @@ struct FetchView<ContentType, ViewType: View>: View {
 	let successView: (ContentType) -> ViewType
 	
 	var body: some View {
+		print(currentResult)
 		switch currentResult {
 		case nil:
 			return HStack {
@@ -51,11 +52,14 @@ struct FetchView_Previews: PreviewProvider {
 				fetch: fetchConstant(
 					ContentView_Previews.content,
 					delay: 1
-				).asResult,
+				).asResultForUI,
 				currentResult: .constant(nil),
 				loadingText: nil,
 				successView: {content in
-					ContentView(content: content)
+					ContentView(
+						content: content,
+						currentImage: .constant(nil)
+					)
 				}
 			)
 		}

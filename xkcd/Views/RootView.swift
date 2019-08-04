@@ -20,7 +20,7 @@ struct RootView: View {
 					using: .shared
 				),
 				using: .shared
-			).asResult,
+			).asResultForUI,
 			currentResult: $metadata,
 			loadingText: nil,
 			successView: {metadata in

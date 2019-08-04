@@ -10,7 +10,8 @@ import SwiftUI
 
 struct ContentPagerView: View {
 	let metadata: Metadata
-	@State private var fetchResults: [Content.Index: Result<Content, Error>] = [:]
+	@State private var fetchedContent: [Content.Index: Result<Content, Error>] = [:]
+	@State private var fetchedImages: [Content.Index: Result<UIImage, Error>] = [:]
 	@State private var currentIndex: Content.Index = Content.Index(rawValue: 2172)!
 	@State private var dragXOffset: CGFloat = 0
 	
@@ -31,9 +32,9 @@ struct ContentPagerView: View {
 						self.dragXOffset += proxy.size.width
 						newIndex = index
 					}
+					self.currentIndex = newIndex
 					
 					withAnimation {
-						self.currentIndex = newIndex
 						self.dragXOffset = 0
 					}
 				}
@@ -57,10 +58,10 @@ struct ContentPagerView: View {
 			CardView {
 				FetchView(
 					fetch: self.metadata.fetchContent(index),
-					currentResult: self.$fetchResults[index],
+					currentResult: self.$fetchedContent[index],
 					loadingText: nil,
 					successView: {content in
-						ContentView(content: content)
+						ContentView(content: content, currentImage: self.$fetchedImages[index])
 					}
 				)
 			}.offset(x: self.dragXOffset + (offsetFromCurrentIndex * proxy.size.width))
@@ -86,7 +87,7 @@ struct ContentPagerView_Previews: PreviewProvider {
 					using: .shared
 				),
 				using: .shared
-			).asResult
+			).asResultForUI
 		}
 	)
 	

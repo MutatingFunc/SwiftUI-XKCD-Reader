@@ -36,11 +36,17 @@ typealias ResultPublisher<ContentType> = AnyPublisher<Result<ContentType, Error>
 extension Publisher {
 	var asAny: AnyPublisher<Output, Failure> {AnyPublisher(self)}
 	
-	var asResult: ResultPublisher<Self.Output> {
+	var asResult: Publishers.Catch<Publishers.Map<Self, Result<Self.Output, Error>>, Just<Result<Self.Output, Error>>> {
 		self
 			.map{Result<Output, Error>.success($0)}
 			.catch{Just<Result<Output, Error>>(.failure($0))}
-		.asAny
+	}
+	
+	var asResultForUI: ResultPublisher<Output> {
+		self
+			.asResult
+			.subscribe(on: DispatchQueue.main)
+			.asAny
 	}
 }
 extension View {

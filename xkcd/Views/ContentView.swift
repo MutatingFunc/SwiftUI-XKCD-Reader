@@ -12,7 +12,7 @@ import SwiftUI
 
 struct ContentView: View {
 	let content: Content
-	@State private var currentImage: Result<UIImage, Error> = nil
+	@Binding var currentImage: Result<UIImage, Error>?
 	
 	var body: some View {
 		VStack {
@@ -48,14 +48,15 @@ struct ContentView_Previews: PreviewProvider {
 		image: fetchConstantError(
 			DebugError.notYetMocked,
 			delay: 1
-		).asResult,
+		).asResultForUI,
 		altText: "The Antikythera mechanism had a whole set of gears specifically to track the cyclic popularity of skinny jeans and low-rise waists."
 	)
 	
 	static var previews: some View {
 		Group {
 			ContentView(
-				content: Self.content
+				content: Self.content,
+				currentImage: .constant(nil)
 			)
 		}
 		.previewDevice("iPhone SE")
