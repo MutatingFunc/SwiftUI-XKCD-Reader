@@ -17,11 +17,11 @@ struct CardView<ViewType: View>: View {
 	var body: some View {
 		ZStack {
 			RoundedRectangle(cornerRadius: 32, style: .continuous)
-				.fill(Color(.secondarySystemBackground))
-				.shadow(color: Color(.systemGray3), radius: 32, x: 0, y: 0)
+				.fill(Color(.systemGray6))
+				//.shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 0)
 			RoundedRectangle(cornerRadius: 32, style: .continuous)
-				.stroke(lineWidth: 5)
-				.foregroundColor(Color(.systemFill))
+				.stroke(lineWidth: 1)
+				.foregroundColor(Color(.systemGray4))
 			content
 				.padding()
 		}.padding()
