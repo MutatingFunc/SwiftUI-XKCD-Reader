@@ -29,7 +29,7 @@ struct Metadata {
 }
 
 struct Content {
-	struct Index: Hashable, Equatable, Comparable, Strideable {
+	struct Index: Hashable, Equatable, Comparable, Strideable, Identifiable {
 		func distance(to other: Content.Index) -> Int {
 			other.rawValue - rawValue
 		}
@@ -43,7 +43,7 @@ struct Content {
 			guard rawValue >= 1 else {return nil}
 			self.rawValue = rawValue
 		}
-		
+		var id: Int {rawValue}
 		static func <(lhs: Content.Index, rhs: Content.Index) -> Bool {lhs.rawValue < rhs.rawValue}
 	}
 	var index: Index

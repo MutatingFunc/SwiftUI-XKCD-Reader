@@ -14,6 +14,7 @@ struct ContentPagerView: View {
 	@State private var fetchedContent: [Content.Index: Result<Content, Error>] = [:]
 	@State private var fetchedImages: [Content.Index: Result<UIImage, Error>] = [:]
 	@State private var dragXOffset: CGFloat = 0
+	@State private var showIndexPicker: Bool = false
 	
 	var body: some View {
 		GeometryReader {proxy -> AnyView in
@@ -47,6 +48,17 @@ struct ContentPagerView: View {
 				self.metadata
 					.index(after: self.currentIndex)
 					.map(self.contentCard)
+			}.sheet(isPresented: self.$showIndexPicker) {
+				List {
+					ForEach((Content.Index(rawValue: 1)!...self.metadata.latestContent.index).reversed()) {index in
+						Button(action: {
+							self.currentIndex = index
+							self.showIndexPicker = false
+						}) {
+							Text("\(index.rawValue)")
+						}
+					}
+				}
 			}.asAny
 		}
 	}
@@ -61,7 +73,11 @@ struct ContentPagerView: View {
 					currentResult: self.$fetchedContent[index],
 					loadingText: nil,
 					successView: {content in
-						ContentView(content: content, currentImage: self.$fetchedImages[index])
+						ContentView(
+							content: content,
+							showMenu: {self.showIndexPicker = true},
+							currentImage: self.$fetchedImages[index]
+						)
 					}
 				)
 			}.offset(x: self.dragXOffset + (offsetFromCurrentIndex * proxy.size.width))

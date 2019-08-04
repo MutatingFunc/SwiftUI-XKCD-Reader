@@ -58,6 +58,7 @@ struct FetchView_Previews: PreviewProvider {
 				successView: {content in
 					ContentView(
 						content: content,
+						showMenu: {},
 						currentImage: .constant(nil)
 					)
 				}

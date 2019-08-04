@@ -12,18 +12,24 @@ import SwiftUI
 
 struct ContentView: View {
 	let content: Content
+	let showMenu: () -> ()
 	@Binding var currentImage: Result<UIImage, Error>?
 	
 	var body: some View {
 		VStack {
-			Text("\(content.index.rawValue)")
-				.font(.footnote)
-				.foregroundColor(Color(.secondaryLabel))
-				.frame(maxWidth: .greatestFiniteMagnitude, alignment: .trailing)
-			Text(content.title)
-				.font(.largeTitle)
-				.fontWeight(.semibold)
-				.frame(alignment: .center)
+			Button(action: showMenu) {
+				VStack {
+					Text("\(content.index.rawValue)")
+						.font(.footnote)
+						.foregroundColor(Color(.secondaryLabel))
+						.frame(maxWidth: .greatestFiniteMagnitude, alignment: .trailing)
+					Text(content.title)
+						.font(.largeTitle)
+						.foregroundColor(Color(.label))
+						.fontWeight(.semibold)
+						.frame(alignment: .center)
+				}
+			}
 			Spacer()
 			FetchView(fetch: content.image, currentResult: $currentImage, loadingText: content.imageSrc) {image in
 				ImageView(image: image)
@@ -56,6 +62,7 @@ struct ContentView_Previews: PreviewProvider {
 		Group {
 			ContentView(
 				content: Self.content,
+				showMenu: {},
 				currentImage: .constant(nil)
 			)
 		}
