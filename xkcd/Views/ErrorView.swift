@@ -15,7 +15,6 @@ struct ErrorView: View {
 	var body: some View {
 		VStack {
 			Text("Error: \(error.localizedDescription)")
-				.lineLimit(nil)
 			Button("Retry", action: retry)
 		}
 	}

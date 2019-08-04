@@ -2,36 +2,63 @@
 //  FetchView.swift
 //  xkcd
 //
-//  Created by James Froggatt on 28.07.2019.
+//  Created by James Froggatt on 04.08.2019.
 //  Copyright © 2019 James Froggatt. All rights reserved.
 //
 
-import Combine
+import Foundation
 import SwiftUI
-/*
-struct FetchView<ModelType, ViewType: View>: View {
-	@ObjectBinding var viewModel: FetchViewModel<ModelType>
-	let createView: (ModelType) -> ViewType
+
+struct FetchView<ContentType, ViewType: View>: View {
+	let fetch: FetchModelPublisher<ContentType>
+	let loadingText: String?
+	let successView: (ContentType) -> ViewType
+	@State private var viewModel: FetchModel<ContentType> = .loading
 	
 	var body: some View {
-		let view: AnyView
-		switch viewModel.model {
+		switch viewModel {
 		case .loading:
-			view = ActivityIndicator(isAnimating: .constant(true), style: .large)
-				.onAppear(perform: viewModel.viewAppeared)
-				.onDisappear(perform: viewModel.viewDisappeared)
-				.asAny
+			return HStack {
+				ActivityIndicator(
+					isAnimating: .constant(true),
+					style: loadingText == nil ? .large : .medium
+				)
+				if loadingText != nil {
+					Text(loadingText!)
+				}
+			}
+			.onReceive(fetch) {
+				self.viewModel = $0
+			}
+			.asAny
 		case .complete(.failure(let error)):
-			view = ErrorView(error: error, retry: viewModel.retry)
-				.asAny
-		case .complete(.success(let model)):
-			view = createView(model)
+			return ErrorView(error: error, retry: {
+				self.viewModel = .loading
+			})
+			.asAny
+		case .complete(.success(let content)):
+			return successView(content)
 				.asAny
 		}
-		FetchView(viewModel: FetchViewModel({ImageFetcher(urlSession: .shared).fetch(URL(string: "://")!)})) {model in
-			Image(model)
-		}
-		return view
 	}
 }
-*/
+
+#if DEBUG
+struct FetchView_Previews: PreviewProvider {
+	static var previews: some View {
+		Group {
+			FetchView(
+				fetch: fetchConstant(
+					ContentView_Previews.content,
+					delay: 1
+				).fetchModel,
+				loadingText: nil,
+				successView: {content in
+					ContentView(content: content)
+				}
+			)
+		}
+		.previewDevice("iPhone SE")
+	}
+}
+#endif

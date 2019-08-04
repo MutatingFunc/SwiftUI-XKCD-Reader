@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-
+/*
 struct RootView: View {
 	@ObjectBinding var viewModel: FetchViewModel<Metadata>
 	let contentViewModel: (Content.Index) -> FetchViewModel<Content>
@@ -70,3 +70,4 @@ struct RootView_Previews: PreviewProvider {
 	}
 }
 #endif
+*/

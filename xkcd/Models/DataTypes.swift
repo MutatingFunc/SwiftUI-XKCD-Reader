@@ -6,8 +6,9 @@
 //  Copyright © 2019 James Froggatt. All rights reserved.
 //
 
-import Foundation
 import Combine
+import Foundation
+import UIKit
 
 enum FetchModel<ContentType> {
 	case loading
@@ -51,6 +52,7 @@ struct Content {
 	}
 	var index: Index
 	var title: String
-	var imageSrc: URL
+	var imageSrc: String
+	var image: FetchModelPublisher<UIImage>
 	var altText: String
 }

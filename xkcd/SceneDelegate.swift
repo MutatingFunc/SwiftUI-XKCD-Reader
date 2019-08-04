@@ -23,19 +23,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		if let windowScene = scene as? UIWindowScene {
 			let window = UIWindow(windowScene: windowScene)
 			window.rootViewController = UIHostingController(
-				rootView: RootView(
-					viewModel: FetchViewModel {
-						MetadataScraper(fetcher: StringFetcher(urlSession: .shared).asAny).scrape(())
-					},
-					contentViewModel: {index in
-						FetchViewModel {
-							ContentScraper(fetcher: StringFetcher(urlSession: .shared).asAny).scrape(index)
+				rootView: ContentPagerView(
+						loadFetch: {index in
+							scrapeContent(
+								for: index,
+								from: fetchString(
+									from: URL(string: "https://www.xkcd.com/2172/")!,
+									using: .shared
+								),
+								using: .shared
+							).fetchModel
 						}
-					}
+					)
 				)
-			)
-		    self.window = window
-		    window.makeKeyAndVisible()
+			self.window = window
+			window.makeKeyAndVisible()
 		}
 	}
 

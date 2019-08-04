@@ -10,15 +10,6 @@ import Foundation
 import Combine
 import SwiftUI
 
-extension Color {
-	init(_ uiColor: UIColor) {
-		var r, g, b, a: CGFloat
-		(r, g, b, a) = (0, 0, 0, 0)
-		uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
-		self.init(.sRGB, red: Double(r), green: Double(g), blue: Double(b), opacity: Double(a))
-	}
-}
-
 extension String {
 	func substringMatchingFirstCaptureGroup(of regex: String) throws -> String {
 		let nsRegex = try NSRegularExpression(pattern: regex, options: [])
@@ -56,18 +47,4 @@ extension View {
 
 extension Cancellable {
 	var asAny: AnyCancellable {AnyCancellable(self)}
-	/// Stores this AnyCancellable in the specified collection.
-	/// Parameters:
-	///    - collection: The collection to store this AnyCancellable.
-	@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-	func store<C>(in collection: inout C) where C : RangeReplaceableCollection, C.Element == AnyCancellable {
-		AnyCancellable(self).store(in: &collection)
-	}
-	
-	/// Stores this AnyCancellable in the specified set.
-	/// Parameters:
-	///    - collection: The set to store this AnyCancellable.
-	func store(in set: inout Set<AnyCancellable>) {
-		AnyCancellable(self).store(in: &set)
-	}
 }

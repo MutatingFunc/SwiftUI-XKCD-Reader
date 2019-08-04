@@ -9,22 +9,20 @@
 import SwiftUI
 
 struct ContentPagerView: View {
-	let contentViewModel: (Content.Index) -> FetchViewModel<Content>
-	let metadata: Metadata
-	@State var index: Content.Index
+	let loadFetch: (Content.Index) -> FetchModelPublisher<Content>
+	@State private var index: Content.Index = Content.Index(rawValue: 2172)!
 	
 	var body: some View {
-		GeometryReader(content: {self.view($0)})
-	}
-	
-	func view(_ proxy: GeometryProxy, lowerBound: Int = 1, upperBound: Int = 5) -> some View {
-		let frame = proxy.frame(in: .local)
-		return List {
-			ForEach(lowerBound...upperBound) {index in
-				ContentView(
-					viewModel: self.contentViewModel(Content.Index(rawValue: index)!)
-				).frame(width: frame.width, height: frame.height)
+		HStack {
+			Button("←", action: {self.index = Content.Index(rawValue: self.index.rawValue - 1)!})
+				.font(.largeTitle)
+			CardView {
+				FetchView(fetch: self.loadFetch(self.index), loadingText: nil) {content in
+					ContentView(content: content)
+				}
 			}
+			Button("→", action: {self.index = Content.Index(rawValue: self.index.rawValue + 1)!})
+				.font(.largeTitle)
 		}
 	}
 }
@@ -34,11 +32,16 @@ struct ContentPagerView_Previews: PreviewProvider {
 	static var previews: some View {
 		Group {
 			ContentPagerView(
-				contentViewModel: RootView_Previews.contentViewModel,
-				metadata: Metadata(
-					latestContent: RootView_Previews.content(Content.Index(rawValue: 100)!)
-				),
-				index: Content.Index(rawValue: 1)!
+				loadFetch: {index in
+					scrapeContent(
+						for: index,
+						from: fetchString(
+							from: URL(string: "https://www.xkcd.com/2172/")!,
+							using: .shared
+						),
+						using: .shared
+					).fetchModel
+				}
 			)
 		}
 		.previewDevice("iPhone SE")

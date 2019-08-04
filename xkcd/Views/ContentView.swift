@@ -11,59 +11,50 @@ import SwiftUI
 
 
 struct ContentView: View {
-	@ObjectBinding var viewModel: FetchViewModel<Content>
+	let content: Content
 	
 	var body: some View {
-		switch viewModel.model {
-		case .loading:
-		return ActivityIndicator(isAnimating: .constant(true), style: .large)
-			.onAppear(perform: viewModel.viewAppeared)
-			.onDisappear(perform: viewModel.viewDisappeared)
-			.asAny
-		case .complete(.failure(let error)):
-			return ErrorView(error: error, retry: viewModel.retry)
-				.asAny
-		case .complete(.success(let content)):
-			return VStack {
-				Text(content.title)
-					.font(.largeTitle)
-					.fontWeight(.semibold)
-					.frame(alignment: .center)
-				Spacer()
-				/*
-				FetchView(viewModel: FetchViewModel({ImageFetcher(urlSession: .shared).fetch(content.imageSrc)})) {
-					Image($0)
-				}*/
-				Text("Image")
-				Spacer()
-				Text("\(content.altText)")
-					.font(.headline)
-					.fontWeight(.medium)
-					.layoutPriority(5)
+		VStack {
+			Text("\(content.index.rawValue)")
+				.font(.footnote)
+				.foregroundColor(Color(.secondaryLabel))
+				.frame(maxWidth: .greatestFiniteMagnitude, alignment: .trailing)
+			Text(content.title)
+				.font(.largeTitle)
+				.fontWeight(.semibold)
+				.frame(alignment: .center)
+			Spacer()
+			FetchView(fetch: content.image, loadingText: content.imageSrc) {image in
+				ImageView(image: image)
 			}
-			.lineLimit(nil)
-			.padding()
-			.asAny
+			Spacer()
+			Text("\(content.altText)")
+				.font(.headline)
+				.fontWeight(.medium)
+				.layoutPriority(5)
 		}
+		.padding()
+		.asAny
 	}
 }
 
 #if DEBUG
 struct ContentView_Previews: PreviewProvider {
+	static let content = Content(
+		index: Content.Index(rawValue: 2172)!,
+		title: "Lunar Cycles",
+		imageSrc: "https://imgs.xkcd.com/comics/lunar_cycles_2x.png",
+		image: fetchConstantError(
+			DebugError.notYetMocked,
+			delay: 1
+		).fetchModel,
+		altText: "The Antikythera mechanism had a whole set of gears specifically to track the cyclic popularity of skinny jeans and low-rise waists."
+	)
+	
 	static var previews: some View {
-		return Group {
+		Group {
 			ContentView(
-				viewModel: FetchViewModel {
-					ConstantFetcher(
-						constant: Content(
-							index: Content.Index(rawValue: 1)!,
-							title: "Normal Title",
-							imageSrc: URL(string: "://")!,
-							altText: "Witty alt text goes here, explaining something tangental"
-						),
-						delay: 1
-					).fetch(URL(string: "://")!)
-				}
+				content: Self.content
 			)
 		}
 		.previewDevice("iPhone SE")

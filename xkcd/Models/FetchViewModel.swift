@@ -9,19 +9,18 @@
 import Foundation
 import Combine
 import SwiftUI
-
-class FetchViewModel<ModelType>: BindableObject {
+/*
+class FetchViewModel<ModelType>: ObservableObject {
 	private let source: () -> AnyPublisher<FetchModel<ModelType>, Never>
-	let willChange = PassthroughSubject<FetchModel<ModelType>, Never>()
-	var model: FetchModel<ModelType> {
-		willSet {willChange.send(newValue)}
-	}
 	fileprivate var cancel: AnyCancellable?
-	init(_ source: @escaping () -> AnyPublisher<ModelType, Error>) {
+	
+	@Published var model: FetchModel<ModelType>
+	
+	init(_ source: AnyPublisher<ModelType, Error>) {
 		self.model = .loading
 		self.source = {
 			Just(.loading).merge(
-				with: source()
+				with: source
 				.resultPublisher()
 				.map(FetchModel.complete)
 			)
@@ -38,6 +37,7 @@ class FetchViewModel<ModelType>: BindableObject {
 		cancel = source().assign(to: \.model, on: self)
 	}
 	func viewDisappeared() {
-		cancel?.cancel()
+		//cancel?.cancel()
 	}
 }
+*/
