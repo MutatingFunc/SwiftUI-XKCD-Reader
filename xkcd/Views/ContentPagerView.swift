@@ -9,39 +9,66 @@
 import SwiftUI
 
 struct ContentPagerView: View {
-	let loadFetch: (Content.Index) -> FetchModelPublisher<Content>
-	@State private var index: Content.Index = Content.Index(rawValue: 2172)!
+	let metadata: Metadata
+	@State private var fetchResults: [Content.Index: Result<Content, Error>] = [:]
+	@State private var currentIndex: Content.Index = Content.Index(rawValue: 2172)!
 	
 	var body: some View {
 		HStack {
-			Button("←", action: {self.index = Content.Index(rawValue: self.index.rawValue - 1)!})
-				.font(.largeTitle)
+			if metadata.index(before: currentIndex) != nil {
+				Button(action: {self.changeIndex(by: -1)}) {
+					Text("←")
+						.font(.largeTitle)
+				}
+			}
 			CardView {
-				FetchView(fetch: self.loadFetch(self.index), loadingText: nil) {content in
+				FetchView(
+					fetch: self.metadata.fetchContent(self.currentIndex),
+					currentResult: self.$fetchResults[self.currentIndex],
+					loadingText: nil
+				) {content in
 					ContentView(content: content)
 				}
 			}
-			Button("→", action: {self.index = Content.Index(rawValue: self.index.rawValue + 1)!})
-				.font(.largeTitle)
+			if metadata.index(after: currentIndex) != nil {
+				Button(action: {self.changeIndex(by: +1)}) {
+					Text("→")
+						.font(.largeTitle)
+				}
+			}
 		}
+	}
+	
+	func changeIndex(by offset: Int) {
+		if let index = metadata.index(currentIndex, offsetBy: offset) {
+			currentIndex = index
+		}
+	}
+	func goForward() {
+		
 	}
 }
 
 #if DEBUG
 struct ContentPagerView_Previews: PreviewProvider {
+	static let metadata = Metadata(
+		latestContent: ContentView_Previews.content,
+		fetchContent: {index in
+			scrapeContent(
+				for: index,
+				from: fetchString(
+					from: contentPage(index: index),
+					using: .shared
+				),
+				using: .shared
+			).asResult
+		}
+	)
+	
 	static var previews: some View {
 		Group {
 			ContentPagerView(
-				loadFetch: {index in
-					scrapeContent(
-						for: index,
-						from: fetchString(
-							from: URL(string: "https://www.xkcd.com/2172/")!,
-							using: .shared
-						),
-						using: .shared
-					).fetchModel
-				}
+				metadata: Self.metadata
 			)
 		}
 		.previewDevice("iPhone SE")

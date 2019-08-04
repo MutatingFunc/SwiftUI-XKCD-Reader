@@ -10,13 +10,9 @@ import Combine
 import Foundation
 import UIKit
 
-enum FetchModel<ContentType> {
-	case loading
-	case complete(Result<ContentType, Error>)
-}
-
 struct Metadata {
 	var latestContent: Content
+	var fetchContent: (Content.Index) -> ResultPublisher<Content>
 	
 	var indices: ClosedRange<Content.Index> {Content.Index(rawValue: 1)!...latestContent.index}
 	func index(before index: Content.Index) -> Content.Index? {
@@ -53,6 +49,6 @@ struct Content {
 	var index: Index
 	var title: String
 	var imageSrc: String
-	var image: FetchModelPublisher<UIImage>
+	var image: ResultPublisher<UIImage>
 	var altText: String
 }

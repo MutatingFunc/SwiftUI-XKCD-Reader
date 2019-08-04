@@ -23,18 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		if let windowScene = scene as? UIWindowScene {
 			let window = UIWindow(windowScene: windowScene)
 			window.rootViewController = UIHostingController(
-				rootView: ContentPagerView(
-						loadFetch: {index in
-							scrapeContent(
-								for: index,
-								from: fetchString(
-									from: URL(string: "https://www.xkcd.com/2172/")!,
-									using: .shared
-								),
-								using: .shared
-							).fetchModel
-						}
-					)
+				rootView: RootView()
 				)
 			self.window = window
 			window.makeKeyAndVisible()

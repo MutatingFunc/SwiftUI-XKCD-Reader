@@ -20,7 +20,7 @@ enum ScrapingError: LocalizedError {
 	}
 }
 
-private let mainPage = URL(string: "https://www.xkcd.com")!
+let mainPage = URL(string: "https://www.xkcd.com")!
 
 func scrapeMetadata(from fetch: AnyPublisher<String, Error>, using urlSession: URLSession) -> AnyPublisher<Metadata, Error> {
 	fetch
@@ -34,11 +34,25 @@ func scrapeMetadata(from fetch: AnyPublisher<String, Error>, using urlSession: U
 			return (html, index)
 		}
 	.flatMap{scrapeContent(for: $0.index, from: fetchConstant($0.html, delay: 0), using: urlSession)}
-		.map(Metadata.init)
+	.map {
+		Metadata(
+			latestContent: $0,
+			fetchContent: {index in
+				scrapeContent(
+					for: index,
+					from: fetchString(
+						from: contentPage(index: index),
+						using: urlSession
+					),
+					using: urlSession
+				).asResult
+			}
+		)
+	}
 		.eraseToAnyPublisher()
 }
 
-private func contentPage(index: Content.Index) -> URL {
+func contentPage(index: Content.Index) -> URL {
 	URL(string: "https://www.xkcd.com/\(index.rawValue)/")!
 }
 
@@ -55,7 +69,7 @@ func scrapeContent(for index: Content.Index, from fetch: AnyPublisher<String, Er
 				index: index,
 				title: removingHTML(title),
 				imageSrc: imageSrc.absoluteString,
-				image: fetchImage(from: imageSrc, using: urlSession).fetchModel,
+				image: fetchImage(from: imageSrc, using: urlSession).asResult,
 				altText: removingHTML(altText)
 			)
 		}

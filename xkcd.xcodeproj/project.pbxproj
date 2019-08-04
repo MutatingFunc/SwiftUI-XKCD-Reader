@@ -30,7 +30,6 @@
 		1AC322BA22F744E200171FC5 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC322B922F744E200171FC5 /* ImageView.swift */; };
 		1AC6672D22F71CF600DF3FD8 /* FetchCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6672C22F71CF600DF3FD8 /* FetchCache.swift */; };
 		1AC6672F22F7341F00DF3FD8 /* FetchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6672E22F7341F00DF3FD8 /* FetchView.swift */; };
-		1AC6673122F7369E00DF3FD8 /* FetchModelPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6673022F7369E00DF3FD8 /* FetchModelPublisher.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,7 +80,6 @@
 		1AC322B922F744E200171FC5 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		1AC6672C22F71CF600DF3FD8 /* FetchCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchCache.swift; sourceTree = "<group>"; };
 		1AC6672E22F7341F00DF3FD8 /* FetchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchView.swift; sourceTree = "<group>"; };
-		1AC6673022F7369E00DF3FD8 /* FetchModelPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchModelPublisher.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,8 +114,8 @@
 				1A3252C422E3C8FD001000E9 /* ContentPagerView.swift */,
 				1A3252C222E3C7DA001000E9 /* CardView.swift */,
 				1A3252BE22E3C527001000E9 /* ContentView.swift */,
-				1AC6672E22F7341F00DF3FD8 /* FetchView.swift */,
 				1AC322B922F744E200171FC5 /* ImageView.swift */,
+				1AC6672E22F7341F00DF3FD8 /* FetchView.swift */,
 				1A3252C022E3C589001000E9 /* ErrorView.swift */,
 			);
 			path = Views;
@@ -126,7 +124,6 @@
 		1A3670A022E2563B00EA9BA9 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				1AC6673022F7369E00DF3FD8 /* FetchModelPublisher.swift */,
 				1AA7E03F22D7E9E800BBF40B /* Scrapers.swift */,
 				1A67AF0522D8A30B00B115A9 /* Fetchers.swift */,
 			);
@@ -375,7 +372,6 @@
 				1AA7E04222D7EAA700BBF40B /* Extensions.swift in Sources */,
 				1A3252C522E3C8FD001000E9 /* ContentPagerView.swift in Sources */,
 				1AC6672D22F71CF600DF3FD8 /* FetchCache.swift in Sources */,
-				1AC6673122F7369E00DF3FD8 /* FetchModelPublisher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

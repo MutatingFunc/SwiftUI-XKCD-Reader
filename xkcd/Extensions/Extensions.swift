@@ -32,13 +32,15 @@ enum MatchingError: LocalizedError {
 	}
 }
 
+typealias ResultPublisher<ContentType> = AnyPublisher<Result<ContentType, Error>, Never>
 extension Publisher {
 	var asAny: AnyPublisher<Output, Failure> {AnyPublisher(self)}
 	
-	func resultPublisher() -> Publishers.Catch<Publishers.Map<Self, Result<Self.Output, Error>>, Just<Result<Self.Output, Error>>> {
+	var asResult: ResultPublisher<Self.Output> {
 		self
 			.map{Result<Output, Error>.success($0)}
 			.catch{Just<Result<Output, Error>>(.failure($0))}
+		.asAny
 	}
 }
 extension View {

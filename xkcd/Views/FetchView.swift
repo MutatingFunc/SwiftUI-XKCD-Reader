@@ -10,14 +10,14 @@ import Foundation
 import SwiftUI
 
 struct FetchView<ContentType, ViewType: View>: View {
-	let fetch: FetchModelPublisher<ContentType>
+	let fetch: ResultPublisher<ContentType>
+	@Binding var currentResult: Result<ContentType, Error>?
 	let loadingText: String?
 	let successView: (ContentType) -> ViewType
-	@State private var viewModel: FetchModel<ContentType> = .loading
 	
 	var body: some View {
-		switch viewModel {
-		case .loading:
+		switch currentResult {
+		case nil:
 			return HStack {
 				ActivityIndicator(
 					isAnimating: .constant(true),
@@ -28,15 +28,15 @@ struct FetchView<ContentType, ViewType: View>: View {
 				}
 			}
 			.onReceive(fetch) {
-				self.viewModel = $0
+				self.currentResult = $0
 			}
 			.asAny
-		case .complete(.failure(let error)):
+		case .failure(let error):
 			return ErrorView(error: error, retry: {
-				self.viewModel = .loading
+				self.currentResult = nil
 			})
 			.asAny
-		case .complete(.success(let content)):
+		case .success(let content):
 			return successView(content)
 				.asAny
 		}
@@ -51,7 +51,8 @@ struct FetchView_Previews: PreviewProvider {
 				fetch: fetchConstant(
 					ContentView_Previews.content,
 					delay: 1
-				).fetchModel,
+				).asResult,
+				currentResult: .constant(nil),
 				loadingText: nil,
 				successView: {content in
 					ContentView(content: content)

@@ -12,6 +12,7 @@ import SwiftUI
 
 struct ContentView: View {
 	let content: Content
+	@State private var currentImage: Result<UIImage, Error> = nil
 	
 	var body: some View {
 		VStack {
@@ -24,7 +25,7 @@ struct ContentView: View {
 				.fontWeight(.semibold)
 				.frame(alignment: .center)
 			Spacer()
-			FetchView(fetch: content.image, loadingText: content.imageSrc) {image in
+			FetchView(fetch: content.image, currentResult: $currentImage, loadingText: content.imageSrc) {image in
 				ImageView(image: image)
 			}
 			Spacer()
@@ -47,7 +48,7 @@ struct ContentView_Previews: PreviewProvider {
 		image: fetchConstantError(
 			DebugError.notYetMocked,
 			delay: 1
-		).fetchModel,
+		).asResult,
 		altText: "The Antikythera mechanism had a whole set of gears specifically to track the cyclic popularity of skinny jeans and low-rise waists."
 	)
 	
