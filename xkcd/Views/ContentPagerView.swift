@@ -10,9 +10,9 @@ import SwiftUI
 
 struct ContentPagerView: View {
 	let metadata: Metadata
+	@Binding var currentIndex: Content.Index
 	@State private var fetchedContent: [Content.Index: Result<Content, Error>] = [:]
 	@State private var fetchedImages: [Content.Index: Result<UIImage, Error>] = [:]
-	@State private var currentIndex: Content.Index = Content.Index(rawValue: 2172)!
 	@State private var dragXOffset: CGFloat = 0
 	
 	var body: some View {
@@ -94,7 +94,8 @@ struct ContentPagerView_Previews: PreviewProvider {
 	static var previews: some View {
 		Group {
 			ContentPagerView(
-				metadata: Self.metadata
+				metadata: metadata,
+				currentIndex: .constant(metadata.latestContent.index)
 			)
 		}
 		.previewDevice("iPhone SE")

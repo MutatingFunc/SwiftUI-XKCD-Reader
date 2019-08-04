@@ -16,7 +16,7 @@ struct FetchView<ContentType, ViewType: View>: View {
 	let successView: (ContentType) -> ViewType
 	
 	var body: some View {
-		print(currentResult)
+		print(currentResult as Any)
 		switch currentResult {
 		case nil:
 			return HStack {

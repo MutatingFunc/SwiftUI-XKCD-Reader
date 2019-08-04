@@ -11,6 +11,7 @@ import SwiftUI
 
 struct RootView: View {
 	@State private var metadata: Result<Metadata, Error>? = nil
+	@State private var currentIndex: Content.Index? = nil
 	
 	var body: some View {
 		FetchView(
@@ -24,7 +25,13 @@ struct RootView: View {
 			currentResult: $metadata,
 			loadingText: nil,
 			successView: {metadata in
-				ContentPagerView(metadata: metadata)
+				ContentPagerView(
+					metadata: metadata,
+					currentIndex: Binding(
+						get: {self.currentIndex ?? metadata.latestContent.index},
+						set: {self.currentIndex = $0}
+					)
+				)
 			}
 		)
 	}
