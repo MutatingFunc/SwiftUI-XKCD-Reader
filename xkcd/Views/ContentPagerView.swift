@@ -6,9 +6,11 @@
 //  Copyright © 2019 James Froggatt. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 
 struct ContentPagerView: View {
+	static let showMenuPublisher = PassthroughSubject<(), Never>()
 	let metadata: Metadata
 	@Binding var currentIndex: Content.Index
 	@State private var fetchedContent: [Content.Index: Result<Content, Error>] = [:]
@@ -60,6 +62,8 @@ struct ContentPagerView: View {
 					}
 				}
 			}.asAny
+		}.onReceive(ContentPagerView.showMenuPublisher) {
+			self.showIndexPicker = true
 		}
 	}
 	
@@ -75,7 +79,6 @@ struct ContentPagerView: View {
 					successView: {content in
 						ContentView(
 							content: content,
-							showMenu: {self.showIndexPicker = true},
 							currentImage: self.$fetchedImages[index]
 						)
 					}

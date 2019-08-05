@@ -12,12 +12,11 @@ import SwiftUI
 
 struct ContentView: View {
 	let content: Content
-	let showMenu: () -> ()
 	@Binding var currentImage: Result<UIImage, Error>?
 	
 	var body: some View {
 		VStack {
-			Button(action: showMenu) {
+			Button(action: ContentPagerView.showMenuPublisher.send) {
 				VStack {
 					Text("\(content.index.rawValue)")
 						.font(.footnote)
@@ -62,7 +61,6 @@ struct ContentView_Previews: PreviewProvider {
 		Group {
 			ContentView(
 				content: Self.content,
-				showMenu: {},
 				currentImage: .constant(nil)
 			)
 		}
