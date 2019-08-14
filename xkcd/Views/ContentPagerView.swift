@@ -9,6 +9,16 @@
 import Combine
 import SwiftUI
 
+struct IndexPickerFramePreferenceKey: PreferenceKey {
+	typealias Value = Anchor<CGRect>?
+	
+	static var defaultValue: Value = nil
+	
+	static func reduce(value: inout Value, nextValue: () -> Value) {
+		value = value ?? nextValue()
+	}
+}
+
 struct ContentPagerView: View {
 	static let showMenuPublisher = PassthroughSubject<(), Never>()
 	let metadata: Metadata
@@ -47,20 +57,29 @@ struct ContentPagerView: View {
 					.map(self.contentCard)
 				self.contentCard(self.currentIndex)
 					.gesture(drag)
+					.backgroundPreferenceValue(IndexPickerFramePreferenceKey.self) {anchor in
+						GeometryReader {(proxy: GeometryProxy) -> AnyView in
+							let frame = anchor.map{proxy[$0]} ?? .zero
+							return Rectangle()
+								.frame(width: frame.width, height: frame.height)
+								.offset(x: frame.minX, y: frame.minY)
+								.popover(isPresented: self.$showIndexPicker, attachmentAnchor: .rect(.rect(frame)), arrowEdge: .top) {
+									List {
+										ForEach((Content.Index(rawValue: 1)!...self.metadata.latestContent.index).reversed()) {index in
+											Button(action: {
+												self.currentIndex = index
+												self.showIndexPicker = false
+											}) {
+												Text("\(index.rawValue)")
+											}
+										}
+									}
+								}.asAny
+						}
+				}
 				self.metadata
 					.index(after: self.currentIndex)
 					.map(self.contentCard)
-			}.sheet(isPresented: self.$showIndexPicker) {
-				List {
-					ForEach((Content.Index(rawValue: 1)!...self.metadata.latestContent.index).reversed()) {index in
-						Button(action: {
-							self.currentIndex = index
-							self.showIndexPicker = false
-						}) {
-							Text("\(index.rawValue)")
-						}
-					}
-				}
 			}.asAny
 		}.onReceive(ContentPagerView.showMenuPublisher) {
 			self.showIndexPicker = true

@@ -9,7 +9,6 @@
 import Combine
 import SwiftUI
 
-
 struct ContentView: View {
 	let content: Content
 	@Binding var currentImage: Result<UIImage, Error>?
@@ -17,16 +16,16 @@ struct ContentView: View {
 	var body: some View {
 		VStack {
 			Button(action: ContentPagerView.showMenuPublisher.send) {
-				VStack {
-					Text("\(content.index.rawValue)")
+				VStack(alignment: .trailing) {
+					Text("\(self.content.index.rawValue)")
 						.font(.footnote)
 						.foregroundColor(Color(.secondaryLabel))
-						.frame(maxWidth: .greatestFiniteMagnitude, alignment: .trailing)
-					Text(content.title)
+						.anchorPreference(key: IndexPickerFramePreferenceKey.self, value: .bounds, transform: {$0})
+					Text(self.content.title)
 						.font(.largeTitle)
 						.foregroundColor(Color(.label))
 						.fontWeight(.semibold)
-						.frame(alignment: .center)
+						.frame(maxWidth: .greatestFiniteMagnitude)
 				}
 			}
 			Spacer()
@@ -34,7 +33,7 @@ struct ContentView: View {
 				ImageView(image: image)
 			}
 			Spacer()
-			Text("\(content.altText)")
+			Text(content.altText)
 				.font(.headline)
 				.fontWeight(.medium)
 				.layoutPriority(5)
