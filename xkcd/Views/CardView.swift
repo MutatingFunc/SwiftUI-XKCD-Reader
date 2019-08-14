@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct CardView<ViewType: View>: View {
+	@Environment(\.colorScheme) private var colorScheme: ColorScheme
 	let content: ViewType
 	init(@ViewBuilder _ content: @escaping () -> ViewType) {
 		self.content = content()
@@ -18,7 +19,7 @@ struct CardView<ViewType: View>: View {
 		ZStack {
 			RoundedRectangle(cornerRadius: 32, style: .continuous)
 				.fill(Color(.systemGray6))
-				//.shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 0)
+				.shadow(color: Color.black.opacity(colorScheme == .dark ? 0 : 0.2), radius: 8, x: 0, y: 4)
 			RoundedRectangle(cornerRadius: 32, style: .continuous)
 				.stroke(lineWidth: 1)
 				.foregroundColor(Color(.systemGray4))
