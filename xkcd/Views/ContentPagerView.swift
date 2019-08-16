@@ -32,9 +32,7 @@ struct ContentPagerView: View {
 		GeometryReader {proxy -> AnyView in
 			let drag = DragGesture(minimumDistance: 1, coordinateSpace: .global)
 				.onChanged {value in
-					withAnimation {
-						self.dragXOffset = value.translation.width
-					}
+					self.dragXOffset = value.translation.width
 				}
 				.onEnded {value in
 					var newIndex = self.currentIndex
