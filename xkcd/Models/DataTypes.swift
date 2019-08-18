@@ -21,7 +21,7 @@ struct Metadata {
 	func index(after index: Content.Index) -> Content.Index? {
 		self.index(index, offsetBy: +1)
 	}
-	func index(_ index: Content.Index, offsetBy offset: Int) -> Content.Index? {
+    func index(_ index: Content.Index, offsetBy offset: Content.Index.Stride) -> Content.Index? {
 		Content.Index(rawValue: index.rawValue+offset).map(indices.contains) == true
 			? Content.Index(rawValue: index.rawValue+offset)
 			: nil
@@ -39,7 +39,7 @@ struct Content {
 		}
 		
 		var rawValue: Int
-		init?(rawValue: Int) {
+        init?(rawValue: Int) {
 			guard rawValue >= 1 else {return nil}
 			self.rawValue = rawValue
 		}

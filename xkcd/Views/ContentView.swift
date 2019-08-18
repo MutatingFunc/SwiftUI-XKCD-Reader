@@ -15,7 +15,7 @@ struct ContentView: View {
 	
 	var body: some View {
 		VStack {
-			Button(action: ContentPagerView.showMenuPublisher.send) {
+			Button(action: showMenuPublisher.send) {
 				VStack(alignment: .trailing) {
 					Text("\(self.content.index.rawValue)")
 						.font(.footnote)

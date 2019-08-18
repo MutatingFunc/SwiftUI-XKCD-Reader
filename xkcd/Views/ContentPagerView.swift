@@ -19,14 +19,15 @@ struct IndexPickerFramePreferenceKey: PreferenceKey {
 	}
 }
 
-struct ContentPagerView: View {
-	static let showMenuPublisher = PassthroughSubject<(), Never>()
-	let metadata: Metadata
-	@Binding var currentIndex: Content.Index
-	@State private var fetchedContent: [Content.Index: Result<Content, Error>] = [:]
-	@State private var fetchedImages: [Content.Index: Result<UIImage, Error>] = [:]
+let showMenuPublisher = PassthroughSubject<(), Never>()
+struct ContentPagerView<IndexType>: View
+where IndexType: Strideable, IndexType.Stride: BinaryInteger {
+    let index: (IndexType, _ offsetBy: IndexType.Stride) -> IndexType?
+	@Binding var currentIndex: IndexType
+    let contentView: (IndexType) -> AnyView
+    ///Applied only to the view currently displayed, for customisation when in focus
+    let primaryContentModifier: (AnyView) -> AnyView
 	@State private var dragXOffset: CGFloat = 0
-	@State private var showIndexPicker: Bool = false
 	
 	var body: some View {
 		GeometryReader {proxy -> AnyView in
@@ -36,73 +37,41 @@ struct ContentPagerView: View {
 				}
 				.onEnded {value in
 					var newIndex = self.currentIndex
-					if value.translation.width > 100, let index = self.metadata.index(before: self.currentIndex) {
+					if value.predictedEndTranslation.width >= proxy.size.width/2, let index = self.index(self.currentIndex, -1) {
 						self.dragXOffset -= proxy.size.width
 						newIndex = index
-					} else if value.translation.width < -100, let index = self.metadata.index(after: self.currentIndex) {
+					} else if value.predictedEndTranslation.width <= -proxy.size.width/2, let index = self.index(self.currentIndex, +1) {
 						self.dragXOffset += proxy.size.width
 						newIndex = index
 					}
+					let hasChanged = newIndex != self.currentIndex
 					self.currentIndex = newIndex
 					
-					withAnimation {
+					withAnimation(hasChanged ? .interactiveSpring() : .spring()) {
 						self.dragXOffset = 0
 					}
 				}
 			return ZStack {
-				self.metadata
-					.index(before: self.currentIndex)
+				self.index(self.currentIndex, -1)
 					.map(self.contentCard)
-				self.contentCard(self.currentIndex)
-					.gesture(drag)
-					.backgroundPreferenceValue(IndexPickerFramePreferenceKey.self) {anchor in
-						GeometryReader {(proxy: GeometryProxy) -> AnyView in
-							let frame = anchor.map{proxy[$0]} ?? .zero
-							return Rectangle()
-								.frame(width: frame.width, height: frame.height)
-								.offset(x: frame.minX, y: frame.minY)
-								.popover(isPresented: self.$showIndexPicker, attachmentAnchor: .rect(.rect(frame)), arrowEdge: .top) {
-                                    IndexPicker(
-                                        validRange: Content.Index(rawValue: 1)!...self.metadata.latestContent.index,
-                                        index: self.$currentIndex,
-                                        onIndexSelected: {self.showIndexPicker = false}
-                                    )
-								}.asAny
-						}
-				}
-				self.metadata
-					.index(after: self.currentIndex)
+                self.primaryContentModifier(
+                    self.contentCard(self.currentIndex)
+                        .gesture(drag)
+                        .asAny
+                )
+                self.index(self.currentIndex, +1)
 					.map(self.contentCard)
 			}.asAny
-		}.onReceive(ContentPagerView.showMenuPublisher) {
-			self.showIndexPicker = true
 		}
 	}
 	
-	func contentCard(_ index: Content.Index) -> some View {
-		let offsetFromCurrentIndex = CGFloat(self.currentIndex.distance(to: index))
+	func contentCard(_ index: IndexType) -> some View {
+        let offsetFromCurrentIndex = CGFloat(self.currentIndex.distance(to: index))
 		
-		return GeometryReader {proxy in
-			CardView {
-				FetchView(
-					fetch: self.metadata.fetchContent(index),
-					currentResult: self.$fetchedContent[index],
-					loadingText: nil,
-					successView: {content in
-						ContentView(
-							content: content,
-							currentImage: self.$fetchedImages[index]
-						)
-					}
-				)
-			}.offset(x: self.dragXOffset + (offsetFromCurrentIndex * proxy.size.width))
-		}
-	}
-	
-	func changeIndex(by offset: Int) {
-		if let index = metadata.index(currentIndex, offsetBy: offset) {
-			currentIndex = index
-		}
+        return GeometryReader {proxy in
+            self.contentView(index)
+                .offset(x: self.dragXOffset + (offsetFromCurrentIndex * proxy.size.width))
+        }
 	}
 }
 
@@ -121,12 +90,15 @@ struct ContentPagerView_Previews: PreviewProvider {
 			).asResultForUI
 		}
 	)
+	@State static var index = 1
 	
 	static var previews: some View {
 		Group {
 			ContentPagerView(
-				metadata: metadata,
-				currentIndex: .constant(metadata.latestContent.index)
+                index: {$0 + $1},
+                currentIndex: $index,
+				contentView: {Text("\($0)").asAny},
+                primaryContentModifier: {$0}
 			)
 		}
 		.previewDevice("iPhone SE")
