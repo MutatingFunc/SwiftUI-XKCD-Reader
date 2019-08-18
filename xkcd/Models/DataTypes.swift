@@ -29,7 +29,7 @@ struct Metadata {
 }
 
 struct Content {
-	struct Index: Hashable, Equatable, Comparable, Strideable, Identifiable {
+	struct Index: RawRepresentable, Hashable, Equatable, Comparable, Strideable, Identifiable {
 		func distance(to other: Content.Index) -> Int {
 			other.rawValue - rawValue
 		}

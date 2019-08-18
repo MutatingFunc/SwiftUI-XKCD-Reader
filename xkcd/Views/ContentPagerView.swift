@@ -62,16 +62,11 @@ struct ContentPagerView: View {
 								.frame(width: frame.width, height: frame.height)
 								.offset(x: frame.minX, y: frame.minY)
 								.popover(isPresented: self.$showIndexPicker, attachmentAnchor: .rect(.rect(frame)), arrowEdge: .top) {
-									List {
-										ForEach((Content.Index(rawValue: 1)!...self.metadata.latestContent.index).reversed()) {index in
-											Button(action: {
-												self.currentIndex = index
-												self.showIndexPicker = false
-											}) {
-												Text("\(index.rawValue)")
-											}
-										}
-									}
+                                    IndexPicker(
+                                        validRange: Content.Index(rawValue: 1)!...self.metadata.latestContent.index,
+                                        index: self.$currentIndex,
+                                        onIndexSelected: {self.showIndexPicker = false}
+                                    )
 								}.asAny
 						}
 				}
