@@ -45,7 +45,7 @@ extension Publisher {
 	var asResultForUI: ResultPublisher<Output> {
 		self
 			.asResult
-			.subscribe(on: DispatchQueue.main)
+			.receive(on: DispatchQueue.main)
 			.asAny
 	}
 }
