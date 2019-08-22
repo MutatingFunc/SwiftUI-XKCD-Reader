@@ -30,18 +30,19 @@ where IndexType: Strideable, IndexType.Stride: BinaryInteger {
 	@State private var dragXOffset: CGFloat = 0
 	
 	var body: some View {
-		GeometryReader {proxy -> AnyView in
+		GeometryReader {geometry -> AnyView in
 			let drag = DragGesture(minimumDistance: 1, coordinateSpace: .global)
 				.onChanged {value in
 					self.dragXOffset = value.translation.width
 				}
 				.onEnded {value in
+					let contentDimensions = self.contentDimensions(in: geometry)
 					var newIndex = self.currentIndex
-					if value.predictedEndTranslation.width >= proxy.size.width/2, let index = self.index(self.currentIndex, -1) {
-						self.dragXOffset -= proxy.size.width
+					if value.predictedEndTranslation.width >= geometry.size.width/2, let index = self.index(self.currentIndex, -1) {
+						self.dragXOffset -= contentDimensions.width
 						newIndex = index
-					} else if value.predictedEndTranslation.width <= -proxy.size.width/2, let index = self.index(self.currentIndex, +1) {
-						self.dragXOffset += proxy.size.width
+					} else if value.predictedEndTranslation.width <= -geometry.size.width/2, let index = self.index(self.currentIndex, +1) {
+						self.dragXOffset += contentDimensions.width
 						newIndex = index
 					}
 					let hasChanged = newIndex != self.currentIndex
@@ -52,26 +53,40 @@ where IndexType: Strideable, IndexType.Stride: BinaryInteger {
 					}
 				}
 			return ZStack {
-				self.index(self.currentIndex, -1)
-					.map(self.contentCard)
-                self.primaryContentModifier(
-                    self.contentCard(self.currentIndex)
-                        .gesture(drag)
-                        .asAny
-                )
-                self.index(self.currentIndex, +1)
-					.map(self.contentCard)
-			}.asAny
+				Group {
+					self.index(self.currentIndex, -2)
+						.map{self.contentCard($0, in: geometry)}
+					self.index(self.currentIndex, -1)
+						.map{self.contentCard($0, in: geometry)}
+					self.primaryContentModifier(
+						self.contentCard(self.currentIndex, in: geometry)
+							.asAny
+					)
+					self.index(self.currentIndex, +1)
+						.map{self.contentCard($0, in: geometry)}
+					self.index(self.currentIndex, +2)
+						.map{self.contentCard($0, in: geometry)}
+				}
+			}
+			.gesture(drag)
+			.asAny
 		}
 	}
 	
-	func contentCard(_ index: IndexType) -> some View {
+	func contentCard(_ index: IndexType, in geometry: GeometryProxy) -> some View {
         let offsetFromCurrentIndex = CGFloat(self.currentIndex.distance(to: index))
-		
-        return GeometryReader {proxy in
-            self.contentView(index)
-                .offset(x: self.dragXOffset + (offsetFromCurrentIndex * proxy.size.width))
-        }
+		let contentDimensions = self.contentDimensions(in: geometry)
+		let xOffset = self.dragXOffset + (contentDimensions.inset/2) + (offsetFromCurrentIndex * contentDimensions.width)
+		let opacity = Double(max(0, (contentDimensions.width * 1.5 - abs(xOffset)) / contentDimensions.width))
+		return self
+			.contentView(index)
+			.frame(width: contentDimensions.width)
+			.offset(x: xOffset)
+			.opacity(opacity)
+	}
+	private func contentDimensions(in geometry: GeometryProxy) -> (width: CGFloat, inset: CGFloat) {
+		let inset = geometry.size.width > geometry.size.height ? geometry.size.width / 10 : 0
+		return (width: geometry.size.width - inset, inset: inset)
 	}
 }
 

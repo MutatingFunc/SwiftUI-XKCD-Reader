@@ -33,22 +33,22 @@ func scrapeMetadata(from fetch: AnyPublisher<String, Error>, using urlSession: U
 			let index = Content.Index(rawValue: previousIndex+1)!
 			return (html, index)
 		}
-	.flatMap{scrapeContent(for: $0.index, from: fetchConstant($0.html, delay: 0), using: urlSession)}
-	.map {
-		Metadata(
-			latestContent: $0,
-			fetchContent: {index in
-				scrapeContent(
-					for: index,
-					from: fetchString(
-						from: contentPage(index: index),
+		.flatMap{scrapeContent(for: $0.index, from: fetchConstant($0.html, delay: 0), using: urlSession)}
+		.map {
+			Metadata(
+				latestContent: $0,
+				fetchContent: {index in
+					scrapeContent(
+						for: index,
+						from: fetchString(
+							from: contentPage(index: index),
+							using: urlSession
+						),
 						using: urlSession
-					),
-					using: urlSession
-				).asResultForUI
-			}
-		)
-	}
+					).asResultForUI
+				}
+			)
+		}
 		.eraseToAnyPublisher()
 }
 

@@ -10,8 +10,16 @@ import Combine
 import SwiftUI
 
 struct RootView: View {
+	let haptics = UISelectionFeedbackGenerator()
 	@State private var metadata: Result<Metadata, Error>? = nil
-	@State private var currentIndex: Content.Index? = nil
+	@State private var currentIndex: Content.Index? = nil {
+		didSet {
+			let edgeCaseEqual = (oldValue == nil && currentIndex == (try? metadata?.get().latestContent.index))
+			if oldValue != currentIndex && !edgeCaseEqual {
+				haptics.selectionChanged()
+			}
+		}
+	}
     
     @State private var fetchedContent: [Content.Index: Result<Content, Error>] = [:]
     @State private var fetchedImages: [Content.Index: Result<UIImage, Error>] = [:]
@@ -50,7 +58,7 @@ struct RootView: View {
                     self.showIndexPicker = true
                 }
 			}
-		)
+		).onAppear(perform: haptics.prepare)
 	}
     
     func contentView(at index: Content.Index, using metadata: Metadata) -> some View {
@@ -72,16 +80,19 @@ struct RootView: View {
     func primaryContentModifier(_ view: AnyView, using metadata: Metadata) -> some View {
         view
             .backgroundPreferenceValue(IndexPickerFramePreferenceKey.self) {anchor in
-                GeometryReader {(proxy: GeometryProxy) -> AnyView in
-                    let frame = anchor.map{proxy[$0]} ?? .zero
+                GeometryReader {(geometry: GeometryProxy) -> AnyView in
+                    let frame = anchor.map{geometry[$0]} ?? .zero
                     return Rectangle()
+						.fill(Color.clear)
                         .frame(width: frame.width, height: frame.height)
                         .offset(x: frame.minX, y: frame.minY)
                         .popover(isPresented: self.$showIndexPicker, attachmentAnchor: .rect(.rect(frame)), arrowEdge: .top) {
                             IndexPicker(
                                 validRange: Content.Index(rawValue: 1)!...metadata.latestContent.index,
                                 index: self.loadedCurrentIndex(metadata: metadata),
-                                onIndexSelected: {self.showIndexPicker = false}
+                                onIndexSelected: {
+									self.showIndexPicker = false
+								}
                             )
                         }.asAny
                 }
