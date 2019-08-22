@@ -39,8 +39,8 @@ struct RootView: View {
 			loadingText: nil,
 			successView: {metadata in
 				ContentPagerView(
+					currentIndex: self.loadedCurrentIndex(metadata: metadata),
 					index: metadata.index(_:offsetBy:),
-	    	    	currentIndex: self.loadedCurrentIndex(metadata: metadata),
 	    	    	contentView: {index in
     	    	    	self.contentView(at: index, using: metadata).asAny
 	    	    	},

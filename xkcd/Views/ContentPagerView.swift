@@ -22,12 +22,12 @@ struct IndexPickerFramePreferenceKey: PreferenceKey {
 let showMenuPublisher = PassthroughSubject<(), Never>()
 struct ContentPagerView<IndexType>: View
 where IndexType: Strideable, IndexType.Stride: BinaryInteger & Identifiable, IndexType.Stride.Stride: SignedInteger {
-	let index: (IndexType, _ offsetBy: IndexType.Stride) -> IndexType?
 	@Binding var currentIndex: IndexType
+	let index: (IndexType, _ offsetBy: IndexType.Stride) -> IndexType?
 	let contentView: (IndexType) -> AnyView
-	///Applied only to the view currently displayed, for customisation when in focus
 	let modifyContentView: (AnyView, _ offset: IndexType.Stride) -> AnyView
 	let contentViewBuffer: IndexType.Stride = 2
+	
 	@State private var dragXOffset: CGFloat = 0
 	
 	var body: some View {
@@ -80,7 +80,6 @@ where IndexType: Strideable, IndexType.Stride: BinaryInteger & Identifiable, Ind
 				.asAny,
 			offsetFromCurrentIndex
 		)
-			
 	}
 	private func contentDimensions(in geometry: GeometryProxy) -> (width: CGFloat, inset: CGFloat) {
 		let inset = geometry.size.width > geometry.size.height ? geometry.size.width / 10 : 0
@@ -108,8 +107,8 @@ struct ContentPagerView_Previews: PreviewProvider {
 	static var previews: some View {
 		Group {
 			ContentPagerView(
-    	    	index: {$0 + $1},
-    	    	currentIndex: $index,
+				currentIndex: $index,
+				index: {$0 + $1},
 				contentView: {Text("\($0)").asAny},
     	    	modifyContentView: {view, offset in view}
 			)
