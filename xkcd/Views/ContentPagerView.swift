@@ -22,10 +22,10 @@ struct IndexPickerFramePreferenceKey: PreferenceKey {
 let showMenuPublisher = PassthroughSubject<(), Never>()
 struct ContentPagerView<IndexType>: View
 where IndexType: Strideable, IndexType.Stride: BinaryInteger & Identifiable, IndexType.Stride.Stride: SignedInteger {
-    let index: (IndexType, _ offsetBy: IndexType.Stride) -> IndexType?
+	let index: (IndexType, _ offsetBy: IndexType.Stride) -> IndexType?
 	@Binding var currentIndex: IndexType
-    let contentView: (IndexType) -> AnyView
-    ///Applied only to the view currently displayed, for customisation when in focus
+	let contentView: (IndexType) -> AnyView
+	///Applied only to the view currently displayed, for customisation when in focus
 	let modifyContentView: (AnyView, _ offset: IndexType.Stride) -> AnyView
 	let contentViewBuffer: IndexType.Stride = 2
 	@State private var dragXOffset: CGFloat = 0
@@ -67,7 +67,7 @@ where IndexType: Strideable, IndexType.Stride: BinaryInteger & Identifiable, Ind
 	}
 	
 	func page(for index: IndexType, in geometry: GeometryProxy) -> some View {
-        let offsetFromCurrentIndex = self.currentIndex.distance(to: index)
+    	let offsetFromCurrentIndex = self.currentIndex.distance(to: index)
 		let contentDimensions = self.contentDimensions(in: geometry)
 		let xOffset = self.dragXOffset + (contentDimensions.inset/2) + (CGFloat(offsetFromCurrentIndex) * contentDimensions.width)
 		let opacity = Double(max(0, (contentDimensions.width * 1.5 - abs(xOffset)) / contentDimensions.width))
@@ -108,10 +108,10 @@ struct ContentPagerView_Previews: PreviewProvider {
 	static var previews: some View {
 		Group {
 			ContentPagerView(
-                index: {$0 + $1},
-                currentIndex: $index,
+    	    	index: {$0 + $1},
+    	    	currentIndex: $index,
 				contentView: {Text("\($0)").asAny},
-                modifyContentView: {view, offset in view}
+    	    	modifyContentView: {view, offset in view}
 			)
 		}
 		.previewDevice("iPhone SE")
