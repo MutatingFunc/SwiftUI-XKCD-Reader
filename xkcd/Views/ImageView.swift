@@ -18,7 +18,6 @@ struct ImageView: View {
 		let view = Image(uiImage: image)
 			.resizable()
 			.aspectRatio(contentMode: .fit)
-			.layoutPriority(1)
 		switch colorScheme {
 		case .light:
 			return view.asAny

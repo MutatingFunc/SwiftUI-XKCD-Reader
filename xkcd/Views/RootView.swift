@@ -26,13 +26,6 @@ struct RootView: View {
 	
     @State private var showIndexPicker: Bool = false
     
-    func loadedCurrentIndex(metadata: Metadata) -> Binding<Content.Index> {
-        Binding(
-            get: {self.currentIndex ?? metadata.latestContent.index},
-            set: {self.currentIndex = $0}
-        )
-    }
-    
 	var body: some View {
 		FetchView(
 			fetch: scrapeMetadata(
@@ -51,8 +44,8 @@ struct RootView: View {
                     contentView: {index in
                         self.contentView(at: index, using: metadata).asAny
                     },
-                    primaryContentModifier: {primaryView in
-                        self.primaryContentModifier(primaryView, using: metadata).asAny
+                    modifyContentView: {view, offset in
+						self.modifyView(view, atOffset: offset, using: metadata).asAny
                     }
 				).onReceive(showMenuPublisher) {
                     self.showIndexPicker = true
@@ -61,7 +54,14 @@ struct RootView: View {
 		).onAppear(perform: haptics.prepare)
 	}
     
-    func contentView(at index: Content.Index, using metadata: Metadata) -> some View {
+    private func loadedCurrentIndex(metadata: Metadata) -> Binding<Content.Index> {
+        Binding(
+            get: {self.currentIndex ?? metadata.latestContent.index},
+            set: {self.currentIndex = $0}
+        )
+    }
+    
+    private func contentView(at index: Content.Index, using metadata: Metadata) -> some View {
         CardView {
             FetchView(
                 fetch: metadata.fetchContent(index),
@@ -77,8 +77,11 @@ struct RootView: View {
         }
     }
     
-    func primaryContentModifier(_ view: AnyView, using metadata: Metadata) -> some View {
-        view
+	private func modifyView(_ view: AnyView, atOffset offset: Int, using metadata: Metadata) -> AnyView {
+		if offset != 0 {
+			return view.asAny
+		}
+		return view
             .backgroundPreferenceValue(IndexPickerFramePreferenceKey.self) {anchor in
                 GeometryReader {(geometry: GeometryProxy) -> AnyView in
                     let frame = anchor.map{geometry[$0]} ?? .zero
@@ -97,6 +100,7 @@ struct RootView: View {
                         }.asAny
                 }
             }
+			.asAny
     }
 }
 

@@ -21,12 +21,13 @@ struct IndexPickerFramePreferenceKey: PreferenceKey {
 
 let showMenuPublisher = PassthroughSubject<(), Never>()
 struct ContentPagerView<IndexType>: View
-where IndexType: Strideable, IndexType.Stride: BinaryInteger {
+where IndexType: Strideable, IndexType.Stride: BinaryInteger & Identifiable, IndexType.Stride.Stride: SignedInteger {
     let index: (IndexType, _ offsetBy: IndexType.Stride) -> IndexType?
 	@Binding var currentIndex: IndexType
     let contentView: (IndexType) -> AnyView
     ///Applied only to the view currently displayed, for customisation when in focus
-    let primaryContentModifier: (AnyView) -> AnyView
+	let modifyContentView: (AnyView, _ offset: IndexType.Stride) -> AnyView
+	let contentViewBuffer: IndexType.Stride = 2
 	@State private var dragXOffset: CGFloat = 0
 	
 	var body: some View {
@@ -38,10 +39,10 @@ where IndexType: Strideable, IndexType.Stride: BinaryInteger {
 				.onEnded {value in
 					let contentDimensions = self.contentDimensions(in: geometry)
 					var newIndex = self.currentIndex
-					if value.predictedEndTranslation.width >= geometry.size.width/2, let index = self.index(self.currentIndex, -1) {
+					if value.predictedEndTranslation.width >= contentDimensions.width/2, let index = self.index(self.currentIndex, -1) {
 						self.dragXOffset -= contentDimensions.width
 						newIndex = index
-					} else if value.predictedEndTranslation.width <= -geometry.size.width/2, let index = self.index(self.currentIndex, +1) {
+					} else if value.predictedEndTranslation.width <= -contentDimensions.width/2, let index = self.index(self.currentIndex, +1) {
 						self.dragXOffset += contentDimensions.width
 						newIndex = index
 					}
@@ -54,18 +55,10 @@ where IndexType: Strideable, IndexType.Stride: BinaryInteger {
 				}
 			return ZStack {
 				Group {
-					self.index(self.currentIndex, -2)
-						.map{self.contentCard($0, in: geometry)}
-					self.index(self.currentIndex, -1)
-						.map{self.contentCard($0, in: geometry)}
-					self.primaryContentModifier(
-						self.contentCard(self.currentIndex, in: geometry)
-							.asAny
-					)
-					self.index(self.currentIndex, +1)
-						.map{self.contentCard($0, in: geometry)}
-					self.index(self.currentIndex, +2)
-						.map{self.contentCard($0, in: geometry)}
+					ForEach(-self.contentViewBuffer ... self.contentViewBuffer) {offset in
+						self.index(self.currentIndex, offset)
+							.map{self.page(for: $0, in: geometry)}
+					}
 				}
 			}
 			.gesture(drag)
@@ -73,16 +66,21 @@ where IndexType: Strideable, IndexType.Stride: BinaryInteger {
 		}
 	}
 	
-	func contentCard(_ index: IndexType, in geometry: GeometryProxy) -> some View {
-        let offsetFromCurrentIndex = CGFloat(self.currentIndex.distance(to: index))
+	func page(for index: IndexType, in geometry: GeometryProxy) -> some View {
+        let offsetFromCurrentIndex = self.currentIndex.distance(to: index)
 		let contentDimensions = self.contentDimensions(in: geometry)
-		let xOffset = self.dragXOffset + (contentDimensions.inset/2) + (offsetFromCurrentIndex * contentDimensions.width)
+		let xOffset = self.dragXOffset + (contentDimensions.inset/2) + (CGFloat(offsetFromCurrentIndex) * contentDimensions.width)
 		let opacity = Double(max(0, (contentDimensions.width * 1.5 - abs(xOffset)) / contentDimensions.width))
-		return self
-			.contentView(index)
-			.frame(width: contentDimensions.width)
-			.offset(x: xOffset)
-			.opacity(opacity)
+		return self.modifyContentView(
+			self
+				.contentView(index)
+				.frame(width: contentDimensions.width)
+				.offset(x: xOffset)
+				.opacity(opacity)
+				.asAny,
+			offsetFromCurrentIndex
+		)
+			
 	}
 	private func contentDimensions(in geometry: GeometryProxy) -> (width: CGFloat, inset: CGFloat) {
 		let inset = geometry.size.width > geometry.size.height ? geometry.size.width / 10 : 0
@@ -113,7 +111,7 @@ struct ContentPagerView_Previews: PreviewProvider {
                 index: {$0 + $1},
                 currentIndex: $index,
 				contentView: {Text("\($0)").asAny},
-                primaryContentModifier: {$0}
+                modifyContentView: {view, offset in view}
 			)
 		}
 		.previewDevice("iPhone SE")

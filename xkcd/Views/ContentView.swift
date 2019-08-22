@@ -26,17 +26,19 @@ struct ContentView: View {
 						.foregroundColor(Color(.label))
 						.fontWeight(.semibold)
 						.frame(maxWidth: .greatestFiniteMagnitude)
+						.layoutPriority(2)
 				}
 			}
 			Spacer()
 			FetchView(fetch: content.image, currentResult: $currentImage, loadingText: content.imageSrc) {image in
 				ImageView(image: image)
+					.layoutPriority(1)
 			}
 			Spacer()
 			Text(content.altText)
 				.font(.headline)
 				.fontWeight(.medium)
-				.layoutPriority(5)
+				.layoutPriority(3)
 		}
 		.padding()
 		.asAny
