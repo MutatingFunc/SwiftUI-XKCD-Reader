@@ -43,10 +43,4 @@ struct IndexPicker_Previews: PreviewProvider {
     	.previewDevice("iPhone SE")
 	}
 }
-
-extension Int: RawRepresentable, Identifiable {
-	public init?(rawValue: Int) {self = rawValue}
-	public var rawValue: Int {self}
-	public var id: Int {self}
-}
 #endif
